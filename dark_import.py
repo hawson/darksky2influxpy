@@ -25,7 +25,7 @@ config = {
 }
 
 
-def get_key(filename): 
+def get_key(filename):
     file = open(filename, 'r')
     return file.read().rstrip()
 
@@ -61,7 +61,7 @@ def point2line(point):
     line = ' '.join([point['measurement']+','+tags, fields, str(point['time'])])
 
     return line
-    
+
 def darksky2dict(darksky,datatype):
 
     data = {}
@@ -80,7 +80,7 @@ def darksky2dict(darksky,datatype):
 
         'cloudCover'          ,
         'ozone'               ,
-        'uvIndex'             , 
+        'uvIndex'             ,
         'visibility'          ,
 
         'windBearing'         ,
@@ -90,7 +90,7 @@ def darksky2dict(darksky,datatype):
         'nearestStormBearking',
         'nearestStormDistance',
     ]
- 
+
     #print(darksky._data)
 
     for k in keys:
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     except Exception as err:
         print("Exception (failed to connect to influxdb): ", sys.exc_info()[0])
         sys.exit(1)
-        
+
 
     points = []
 
@@ -134,8 +134,8 @@ if __name__ == '__main__':
 
         # This is the current, actual reported data; it is not a forecast.
         current_data = make_point(
-                weather.currently.time, 
-                'weather', 
+                weather.currently.time,
+                'weather',
                 influx_tags,
                 darksky2dict(weather.currently, 'current')
         )
@@ -143,22 +143,26 @@ if __name__ == '__main__':
         points.append(point2line(current_data))
 
         # this is forecast data, and not "real"
-        # it is a list of datapoints, forecast at a given time, for a different 
+        # it is a list of datapoints, forecast at a given time, for a different
         # time in the future.  For now, we just use the hourly data, which extends
         # ~48 hours in the future
-        FT=weather.currently.time, 
+        FT=weather.currently.time
+        FT_bucket = int(FT/300)*300
+        print("bucket={} ({})".format(FT_bucket, FT%300))
+        forecast_tags = influx_tags
+        forecast_tags['forecast_time'] = FT_bucket
         forecast_data = [ point2line(make_point(
-                            hourly_data.time, 
+                            hourly_data.time,
                             'forecast',
-                            influx_tags,
-                            darksky2dict(hourly_data, 'hourly', forecast_time=FT)))
+                            forecast_tags,
+                            darksky2dict(hourly_data, 'forecast')))
                           for hourly_data in weather.hourly ]
 
     #point = make_point(1234,'foo', {'alpha':'A', 'name':'bob'}, {'age':123, 'weight':1234})
     #print(point2line(point))
 
     influxdb_parameters = {
-        'db': 'weather_db', 
+        'db': 'weather_db',
         'precision':'s'
     }
     #print('\n'.join(points))
