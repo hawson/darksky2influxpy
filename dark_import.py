@@ -62,43 +62,42 @@ def point2line(point):
 
     return line
     
-def darksky2dict(darksky,datatype, forecast_time=None):
+def darksky2dict(darksky,datatype):
 
-    data = { 
-        'apparent_temperature'  : darksky.apparentTemperature,
-        'cloud_cover'           : darksky.cloudCover,
-        'dewpoint'              : darksky.dewPoint,
-        'humidity'              : darksky.humidity,
-        'ozone'                 : darksky.ozone,
-        'precip_intensity'      : darksky.precipIntensity,
-        'precip_probability'    : darksky.precipProbability,
-        'pressure'              : darksky.pressure,
-        'temperature'           : darksky.temperature,
-        'time'                  : darksky.time,        # time of data measured (current), or when in the future the forecast is good for (i.e. off in the future)
-        'uvindex'               : darksky.uvIndex,
-        'visibility'            : darksky.visibility,
-        'wind_bearing'          : darksky.windBearing,
-        'wind_speed'            : darksky.windSpeed,
-    }
+    data = {}
+    keys = [
+        'time'                ,  # time of data measured (current), or when in the future the forecast is good for (i.e. off in the future)
 
-    if 'precipType' in dir(darksky):
-        data['precip_type'] = darksky.precipType
+        'temperature'         ,
+        'pressure'            ,
+        'dewPoint'            ,
+        'humidity'            ,
+        'apparentTemperature' ,
 
-    if 'windGust' in dir(darksky):
-        data['wind_gust'] =  darksky.windGust
+        'precipIntensity'     ,
+        'precipProbability'   ,
+        'precipType'          ,
 
-    if datatype == 'current': 
-        data['nearest_storm_distance']= darksky.nearestStormDistance
+        'cloudCover'          ,
+        'ozone'               ,
+        'uvIndex'             , 
+        'visibility'          ,
 
-        if darksky.nearestStormDistance:
-            data['nearest_storm_bearing'] = darksky.nearestStormBearing
-        else:
-            data['nearest_storm_bearing'] = 0.0
-    
+        'windBearing'         ,
+        'windSpeed'           ,
+        'windGust'            ,
 
+        'nearestStormBearking',
+        'nearestStormDistance',
+    ]
+ 
+    #print(darksky._data)
 
-    if datatype == 'forecast' and forecast_time:
-        data['forecast_time'] = forecast_time  # this is when the forecast was made, *NOT* the time in the future
+    for k in keys:
+        if k in darksky._data:
+            data[k]=darksky._data[k]
+        #else:
+        #    print("{}: Missing {}".format(datatype,k))
 
     return data
 
