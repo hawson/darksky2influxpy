@@ -105,7 +105,7 @@ def darksky2dict(darksky,datatype):
 if __name__ == '__main__':
 
     config['KEY'] = get_key('key.txt')
-    print(config['KEY'])
+    #print(config['KEY'])
 
     try:
         influxdb = InfluxDBClient(host=config['influxdb_host'],
@@ -125,12 +125,12 @@ if __name__ == '__main__':
                   'loc' : config['location'], }
 
     with forecast(config['KEY'], config['latitude'], config['longitude']) as weather:
-        print(weather.daily.summary, end='\n---\n')
-        #rint((weather.currently._data.keys), end='\n---\n')
         #print((weather.hourly.__dict__), end='\n---\n')
+        #print(weather.daily.summary, end='\n---\n')
+        #rint((weather.currently._data.keys), end='\n---\n')
 
-        print(' '.join(map(str,[hour.temperature for hour in weather.hourly])))
-        print(' '.join(map(str,[hour.windGust for hour in weather.hourly])))
+        #print(' '.join(map(str,[hour.temperature for hour in weather.hourly])))
+        #print(' '.join(map(str,[hour.windGust for hour in weather.hourly])))
 
         # This is the current, actual reported data; it is not a forecast.
         current_data = make_point(
@@ -148,7 +148,9 @@ if __name__ == '__main__':
         # ~48 hours in the future
         FT=weather.currently.time
         FT_bucket = int(FT/300)*300
-        print("bucket={} ({})".format(FT_bucket, FT%300))
+
+        #print("bucket={} ({})".format(FT_bucket, FT%300))
+
         forecast_tags = influx_tags
         forecast_tags['forecast_time'] = FT_bucket
         forecast_data = [ point2line(make_point(
